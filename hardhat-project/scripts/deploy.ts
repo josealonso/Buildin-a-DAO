@@ -1,30 +1,34 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
+import { COMPLU_NFT_CONTRACT_ADDRESS } from "../constants";
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  // Deploy the FakeNFTMarketplace contract first
+  const FakeNFTMarketplace = await ethers.getContractFactory(
+    "FakeNFTMarketplace"
+  );
+  const fakeNftMarketplace = await FakeNFTMarketplace.deploy();
+  await fakeNftMarketplace.deployed();
 
-  // We get the contract to deploy
-  const Greeter = await ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  console.log("FakeNFTMarketplace deployed to: ", fakeNftMarketplace.address);
 
-  await greeter.deployed();
+  // Now deploy the CompluDAO contract
+  const CompluDAO = await ethers.getContractFactory("CompluDAO");
+  const compluDAO = await CompluDAO.deploy(
+    fakeNftMarketplace.address,
+    COMPLU_NFT_CONTRACT_ADDRESS,
+    {
+      // Change this value as you want
+      value: ethers.utils.parseEther("0.1"),
+    }
+  );
+  await compluDAO.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+  console.log("CompluDAO deployed to: ", compluDAO.address);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
