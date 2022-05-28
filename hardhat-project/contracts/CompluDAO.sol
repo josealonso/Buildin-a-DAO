@@ -54,7 +54,6 @@ contract CompluDAO is Ownable {
         bool executed;
         // voters - a mapping of CompluNFT tokenIDs to booleans indicating whether that NFT has already been used to cast a vote or not
         mapping(uint256 => bool) voters;
-        // mapping(address => bool) voters;
     }
 
     enum Vote {
@@ -67,6 +66,7 @@ contract CompluDAO is Ownable {
     // Number of proposals that have been created
     uint256 public numProposals;
 
+    // Interfaces
     ICompluNFT compluNFT;
     IFakeNFTMarketplace nftMarketplace;
 
@@ -95,7 +95,6 @@ contract CompluDAO is Ownable {
         proposal.nftTokenId = _nftTokenId;
         // Set the proposal's voting deadline to be (current time + 5 minutes)
         proposal.deadline = block.timestamp + 5 minutes;
-        // proposals[numProposals] = proposal;
         numProposals++;
         return numProposals - 1;
     }
@@ -128,7 +127,7 @@ contract CompluDAO is Ownable {
                 numVotes++;
                 proposal.voters[tokenId] = true;
             }
-        } // End of for loop
+        }
         require(numVotes > 0, "ALREADY_VOTED");
 
         if (vote == Vote.YES) {
@@ -157,8 +156,6 @@ contract CompluDAO is Ownable {
     {
         Proposal storage proposal = proposals[proposalIndex];
 
-        // call{amount: amount}();
-
         // If the proposal has more YAY votes than NAY votes
         // purchase the NFT from the FakeNFTMarketplace
         if (proposal.yesVotes > proposal.noVotes) {
@@ -171,8 +168,6 @@ contract CompluDAO is Ownable {
 
     /// @dev withdrawEther allows the contract owner (deployer) to withdraw the ETH from the contract
     function withdrawEther() external onlyOwner {
-        // Send the Ethers from this contract to the owner
-        // (bool success, ) = owner().call{value: amount}("");
         payable(owner()).transfer(address(this).balance);
     }
 
