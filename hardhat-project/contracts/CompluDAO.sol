@@ -158,11 +158,21 @@ contract CompluDAO is Ownable {
         Proposal storage proposal = proposals[proposalIndex];
 
         // call{amount: amount}();
+
+        // If the proposal has more YAY votes than NAY votes
+        // purchase the NFT from the FakeNFTMarketplace
         if (proposal.yesVotes > proposal.noVotes) {
             uint256 nftPrice = nftMarketplace.getPrice();
             require(address(this).balance >= nftPrice, "NOT_ENOUGH_FUNDS");
             nftMarketplace.purchase{value: nftPrice}(proposal.nftTokenId);
         }
         proposal.executed = true;
+    }
+
+    /// @dev withdrawEther allows the contract owner (deployer) to withdraw the ETH from the contract
+    function withdrawEther() external onlyOwner {
+        // Send the Ethers from this contract to the owner
+        // (bool success, ) = owner().call{value: amount}("");
+        payable(owner()).transfer(address(this).balance);
     }
 }
